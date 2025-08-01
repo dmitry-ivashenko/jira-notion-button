@@ -1,0 +1,144 @@
+/* Styles for Notion copy button */
+
+.jira-notion-copy-button {
+    /* Basic styles - adapted to Jira style */
+    background: #0052cc;
+    color: white;
+    border: 1px solid #0052cc;
+    border-radius: 3px;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 400;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    line-height: 1.2;
+    
+    /* Interactivity */
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    /* Layout - integrates with other buttons */
+    margin: 0 4px;
+    
+    /* Height like other Jira buttons */
+    height: auto;
+    min-height: 28px;
+    min-width: 100px;
+    
+    /* Flexbox for text centering */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    
+    /* Remove extra shadows for more native look */
+    box-shadow: none;
+    
+    /* Align with other buttons */
+    vertical-align: middle;
+}
+
+.jira-notion-copy-button:hover {
+    background: #0747a6;
+    border-color: #0747a6;
+    transform: none;
+    box-shadow: 0 1px 2px rgba(0, 82, 204, 0.2);
+}
+
+.jira-notion-copy-button:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 82, 204, 0.3);
+}
+
+.jira-notion-copy-button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Container for button if placed fixed (fallback) */
+.jira-notion-button-container {
+    position: fixed !important;
+    top: 120px !important;
+    right: 20px !important;
+    z-index: 1000 !important;
+    background: white !important;
+    padding: 8px !important;
+    border-radius: 6px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    border: 1px solid #ddd !important;
+}
+
+/* Adaptation to Jira dark theme if used */
+@media (prefers-color-scheme: dark) {
+    .jira-notion-button-container {
+        background: #1e1e1e !important;
+        border-color: #333 !important;
+        color: white !important;
+    }
+}
+
+/* Styles for integration with existing button groups */
+[data-testid="issue.views.issue-base.foundation.summary.actions"] .jira-notion-copy-button,
+.issue-actions .jira-notion-copy-button,
+.issue-header-content .jira-notion-copy-button {
+    margin: 0 2px;
+    height: auto;
+    min-height: 28px;
+}
+
+/* Container for inline placement */
+.jira-notion-inline-container {
+    margin: 8px 0 !important;
+    display: flex !important;
+    gap: 8px !important;
+    align-items: center !important;
+}
+
+.jira-notion-inline-container .jira-notion-copy-button {
+    margin: 0 !important;
+}
+
+/* Button appearance animation - more subtle */
+.jira-notion-copy-button {
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Styles for "Copied" state */
+.jira-notion-copy-button[data-status="success"] {
+    background: #00875a;
+    border-color: #00875a;
+}
+
+.jira-notion-copy-button[data-status="error"] {
+    background: #de350b;
+    border-color: #de350b;
+}
+
+/* Ensure button doesn't conflict with other elements */
+.jira-notion-copy-button * {
+    box-sizing: border-box;
+}
+
+/* Styles for mobile devices */
+@media (max-width: 768px) {
+    .jira-notion-button-container {
+        top: 10px !important;
+        right: 10px !important;
+        padding: 8px !important;
+    }
+    
+    .jira-notion-copy-button {
+        font-size: 12px;
+        padding: 6px 12px;
+        min-width: 100px;
+    }
+}
