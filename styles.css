@@ -1,4 +1,4 @@
-/* Styles for Notion copy button */
+/* Styles for Notion copy buttons */
 
 .jira-notion-copy-button {
     /* Basic styles - adapted to Jira style */
@@ -17,7 +17,7 @@
     transition: all 0.2s ease;
     
     /* Layout - integrates with other buttons */
-    margin: 0 4px;
+    margin: 0 2px;
     
     /* Height like other Jira buttons */
     height: auto;
@@ -34,6 +34,25 @@
     
     /* Align with other buttons */
     vertical-align: middle;
+}
+
+/* Branch button specific styles */
+.jira-branch-button {
+    background: #36b37e;
+    border-color: #36b37e;
+    min-width: 110px;
+}
+
+.jira-branch-button:hover {
+    background: #00875a;
+    border-color: #00875a;
+}
+
+/* Button container styles */
+.jira-notion-buttons-container {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
 }
 
 .jira-notion-copy-button:hover {
@@ -113,12 +132,14 @@
 }
 
 /* Styles for "Copied" state */
-.jira-notion-copy-button[data-status="success"] {
+.jira-notion-copy-button[data-status="success"],
+.jira-branch-button[data-status="success"] {
     background: #00875a;
     border-color: #00875a;
 }
 
-.jira-notion-copy-button[data-status="error"] {
+.jira-notion-copy-button[data-status="error"],
+.jira-branch-button[data-status="error"] {
     background: #de350b;
     border-color: #de350b;
 }

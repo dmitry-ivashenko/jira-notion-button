@@ -21,9 +21,12 @@
 ## Testing
 
 1. Open any ticket in Jira (e.g., `https://your-company.atlassian.net/browse/TICKET-123`)
-2. The "📋 Copy to Notion" button should appear in the row with other buttons (like, share)
-3. Click the button - information will be copied to clipboard
-4. Paste in Notion (Ctrl+V or Cmd+V)
+2. Two buttons should appear in the row with other buttons (like, share):
+   - **📋 Copy to Notion**: Blue button for full text
+   - **🌿 Copy Branch**: Green button for branch name only
+3. Test both buttons:
+   - Click "📋 Copy to Notion" → paste in Notion (Ctrl+V or Cmd+V)
+   - Click "🌿 Copy Branch" → paste in terminal: `git checkout -b [Ctrl+V]`
 
 ## Supported Domains
 
@@ -89,6 +92,26 @@ If your Jira is on another domain, add it to `manifest.json`:
         - [ ]  code coverage
         - [ ]  reviewed
         - [ ]  merged
+```
+
+## Branch Copy Button
+
+The **🌿 Copy Branch** button copies **only** the branch name:
+
+### For Feature/Task tickets:
+```
+feature/TICKET-123-add-user-dashboard
+```
+
+### For Bug tickets:
+```
+bugfix/BUG-456-fix-login-error
+```
+
+**Usage example:**
+```bash
+# Copy branch name with 🌿 button, then:
+git checkout -b feature/TICKET-123-add-user-dashboard
 ```
 
 The plugin automatically detects the ticket type and uses the appropriate branch prefix:

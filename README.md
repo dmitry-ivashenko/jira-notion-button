@@ -4,13 +4,15 @@ Chrome extension for copying meta-information from Jira tickets to Notion format
 
 ## Features
 
-- Automatically adds "📋 Copy to Notion" button to Jira ticket pages
+- **Two convenient buttons** on Jira ticket pages:
+  - **📋 Copy to Notion**: Full formatted text with checklist
+  - **🌿 Copy Branch**: Just the branch name for quick Git operations
 - Extracts ticket information (ID, title, type, URL)
 - Smart branch naming based on ticket type:
   - **Bug tickets**: `bugfix/TICKET-ID-description`
   - **Other tickets**: `feature/TICKET-ID-description`
 - Formats text in convenient Notion format with checklist
-- Copies everything to clipboard with one click
+- Intelligent button placement in existing action button rows
 
 ## Copied Text Format
 
@@ -66,10 +68,14 @@ _Not available yet - plugin in development_
 ## Usage
 
 1. Open any ticket in Jira (URL should contain `/browse/TICKET-ID`)
-2. The "📋 Copy to Notion" button will appear in the row with other action buttons (like, share, subscribe)
-3. Click the button
+2. Two buttons will appear in the row with other action buttons (like, share, subscribe):
+   - **📋 Copy to Notion**: Copies full formatted text with checklist
+   - **🌿 Copy Branch**: Copies just the branch name (e.g., `feature/TICKET-123-add-feature`)
+3. Click the desired button
 4. Information will be copied to clipboard
-5. Paste in Notion (Ctrl+V / Cmd+V)
+5. Paste where needed:
+   - **Notion**: Paste full text (Ctrl+V / Cmd+V)
+   - **Terminal**: Create Git branch (`git checkout -b [paste branch name]`)
 
 ### Button Placement
 
@@ -159,6 +165,13 @@ The plugin tries to automatically find the best place to place the button. If th
 3. Fallback method is used for older browsers
 
 ## Changelog
+
+### v1.3
+- **🌿 New Branch Copy Button**: Added dedicated button for copying just branch names
+- **Two-button interface**: "📋 Copy to Notion" + "🌿 Copy Branch" side by side
+- **Improved Git workflow**: Quick branch creation with `git checkout -b [branch-name]`
+- **Enhanced styling**: Green branch button to distinguish from Notion button
+- **Better organization**: Buttons grouped in container for cleaner layout
 
 ### v1.2
 - **Improved ticket type detection**: Added support for new Jira UI breadcrumbs

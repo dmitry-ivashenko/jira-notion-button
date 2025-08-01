@@ -150,31 +150,11 @@ function extractTicketInfo() {
 
 // Function to create text in Notion format
 function formatNotionText(ticketInfo) {
-    // Determine branch prefix based on ticket type
-    let branchPrefix = 'feature';
-    if (ticketInfo.type && ticketInfo.type.toLowerCase() === 'bug') {
-        branchPrefix = 'bugfix';
-    }
-    
-    // Generate branch name from ticket title (simplified)
-    let branchSuffix = 'branch-name';
-    if (ticketInfo.title) {
-        branchSuffix = ticketInfo.title
-            .toLowerCase()
-            .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
-            .replace(/\s+/g, '-') // Replace spaces with hyphens
-            .replace(/-+/g, '-') // Replace multiple hyphens with single
-            .replace(/^-|-$/g, '') // Remove leading/trailing hyphens
-            .substring(0, 50); // Limit length
-        
-        if (!branchSuffix) {
-            branchSuffix = 'branch-name';
-        }
-    }
+    const branchName = generateBranchName(ticketInfo);
     
     const template = `- [ ]  [${ticketInfo.id}](${ticketInfo.url}) - **${ticketInfo.title}**
     
-    **Branch**: \`${branchPrefix}/${ticketInfo.id}-${branchSuffix}\` from \`master\` 
+    **Branch**: \`${branchName}\` from \`master\` 
     
     **PR**: [paste link here]
     
@@ -213,7 +193,34 @@ async function copyToClipboard(text) {
     }
 }
 
-// Function to create button
+// Function to generate branch name only
+function generateBranchName(ticketInfo) {
+    // Determine branch prefix based on ticket type
+    let branchPrefix = 'feature';
+    if (ticketInfo.type && ticketInfo.type.toLowerCase() === 'bug') {
+        branchPrefix = 'bugfix';
+    }
+    
+    // Generate branch name from ticket title (simplified)
+    let branchSuffix = 'branch-name';
+    if (ticketInfo.title) {
+        branchSuffix = ticketInfo.title
+            .toLowerCase()
+            .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+            .replace(/\s+/g, '-') // Replace spaces with hyphens
+            .replace(/-+/g, '-') // Replace multiple hyphens with single
+            .replace(/^-|-$/g, '') // Remove leading/trailing hyphens
+            .substring(0, 50); // Limit length
+        
+        if (!branchSuffix) {
+            branchSuffix = 'branch-name';
+        }
+    }
+    
+    return `${branchPrefix}/${ticketInfo.id}-${branchSuffix}`;
+}
+
+// Function to create copy to Notion button
 function createCopyButton() {
     const button = document.createElement('button');
     button.id = 'jira-notion-copy-btn';
@@ -260,15 +267,74 @@ function createCopyButton() {
     return button;
 }
 
-// Function to place button on page
-function addButtonToPage() {
-    // Remove existing button if it exists
-    const existingButton = document.getElementById('jira-notion-copy-btn');
-    if (existingButton) {
-        existingButton.remove();
-    }
+// Function to create copy branch name button
+function createCopyBranchButton() {
+    const button = document.createElement('button');
+    button.id = 'jira-branch-copy-btn';
+    button.textContent = '🌿 Copy Branch';
+    button.className = 'jira-notion-copy-button jira-branch-button';
     
-    const button = createCopyButton();
+    button.addEventListener('click', async () => {
+        try {
+            button.textContent = '⏳ Copying...';
+            button.disabled = true;
+            
+            const ticketInfo = extractTicketInfo();
+            if (!ticketInfo || !ticketInfo.id) {
+                alert('Failed to extract ticket information');
+                return;
+            }
+            
+            const branchName = generateBranchName(ticketInfo);
+            const success = await copyToClipboard(branchName);
+            
+            if (success) {
+                button.textContent = '✅ Copied!';
+                setTimeout(() => {
+                    button.textContent = '🌿 Copy Branch';
+                    button.disabled = false;
+                }, 2000);
+            } else {
+                button.textContent = '❌ Error';
+                setTimeout(() => {
+                    button.textContent = '🌿 Copy Branch';
+                    button.disabled = false;
+                }, 2000);
+            }
+        } catch (error) {
+            console.error('Error while copying branch name:', error);
+            button.textContent = '❌ Error';
+            setTimeout(() => {
+                button.textContent = '🌿 Copy Branch';
+                button.disabled = false;
+            }, 2000);
+        }
+    });
+    
+    return button;
+}
+
+// Function to place buttons on page
+function addButtonToPage() {
+    // Remove existing buttons if they exist
+    const existingNotionButton = document.getElementById('jira-notion-copy-btn');
+    const existingBranchButton = document.getElementById('jira-branch-copy-btn');
+    const existingContainer = document.getElementById('jira-notion-buttons-container');
+    
+    if (existingNotionButton) existingNotionButton.remove();
+    if (existingBranchButton) existingBranchButton.remove();
+    if (existingContainer) existingContainer.remove();
+    
+    // Create both buttons
+    const notionButton = createCopyButton();
+    const branchButton = createCopyBranchButton();
+    
+    // Create container for buttons
+    const buttonContainer = document.createElement('div');
+    buttonContainer.id = 'jira-notion-buttons-container';
+    buttonContainer.className = 'jira-notion-buttons-container';
+    buttonContainer.appendChild(notionButton);
+    buttonContainer.appendChild(branchButton);
     
     // Try to find row of action buttons (like, share, etc.)
     let targetContainer = null;
@@ -331,12 +397,12 @@ function addButtonToPage() {
         }
     }
     
-    // If we found container with buttons, add our button there
+    // If we found container with buttons, add our button container there
     if (targetContainer) {
-        // Style button to match others in the row
-        button.style.margin = '0 4px';
-        button.style.display = 'inline-flex';
-        targetContainer.appendChild(button);
+        // Style button container to match others in the row
+        buttonContainer.style.margin = '0 4px';
+        buttonContainer.style.display = 'inline-flex';
+        targetContainer.appendChild(buttonContainer);
         return;
     }
     
@@ -347,7 +413,6 @@ function addButtonToPage() {
                           document.querySelector('h1');
     
     if (summaryElement) {
-        const buttonContainer = document.createElement('div');
         buttonContainer.className = 'jira-notion-inline-container';
         buttonContainer.style.cssText = `
             margin: 8px 0;
@@ -356,14 +421,12 @@ function addButtonToPage() {
             align-items: center;
         `;
         
-        buttonContainer.appendChild(button);
         // Insert after title
         summaryElement.parentElement.insertBefore(buttonContainer, summaryElement.nextSibling);
         return;
     }
     
     // Last resort - minimally intrusive floating
-    const buttonContainer = document.createElement('div');
     buttonContainer.className = 'jira-notion-button-container';
     buttonContainer.style.cssText = `
         position: fixed;
@@ -375,9 +438,10 @@ function addButtonToPage() {
         border-radius: 6px;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         border: 1px solid #ddd;
+        display: flex;
+        gap: 8px;
     `;
     
-    buttonContainer.appendChild(button);
     document.body.appendChild(buttonContainer);
 }
 
@@ -392,8 +456,8 @@ function init() {
     
     // Observe DOM changes (for SPA)
     const observer = new MutationObserver((mutations) => {
-        // Check if we need to add button again
-        if (!document.getElementById('jira-notion-copy-btn') && isJiraTicketPage()) {
+        // Check if we need to add buttons again
+        if (!document.getElementById('jira-notion-buttons-container') && isJiraTicketPage()) {
             setTimeout(addButtonToPage, 500);
         }
     });
