@@ -37,33 +37,86 @@ function extractTicketInfo() {
         
         // Extract ticket type (Bug, Task, Story, etc.)
         let ticketType = '';
-        const typeSelectors = [
-            '[data-testid*="issue-type"]',
-            '[data-test-id*="issue-type"]',
-            '[data-testid*="issuetype"]',
-            '[aria-label*="Issue Type"]',
-            '[title*="Issue Type"]',
-            '.issue-type',
-            '[data-field-id="issuetype"]'
-        ];
         
-        for (const selector of typeSelectors) {
-            const typeElement = document.querySelector(selector);
-            if (typeElement) {
-                // Try different ways to get the type text
-                ticketType = typeElement.textContent?.trim() || 
-                           typeElement.getAttribute('aria-label')?.trim() || 
-                           typeElement.getAttribute('title')?.trim() || 
-                           '';
-                if (ticketType) break;
+        // Method 1: Look for the change issue type button in breadcrumbs (most reliable)
+        const changeTypeButton = document.querySelector('[data-testid="issue.views.issue-base.foundation.change-issue-type.button"]');
+        if (changeTypeButton) {
+            // Try to get type from aria-label like "Bug - Change work type"
+            const ariaLabel = changeTypeButton.getAttribute('aria-label');
+            if (ariaLabel) {
+                const typeMatch = ariaLabel.match(/^([^-]+)/);
+                if (typeMatch) {
+                    ticketType = typeMatch[1].trim();
+                }
+            }
+            
+            // If not found in aria-label, try to get from img alt attribute inside button
+            if (!ticketType) {
+                const imgElement = changeTypeButton.querySelector('img[alt]');
+                if (imgElement) {
+                    ticketType = imgElement.getAttribute('alt')?.trim() || '';
+                }
             }
         }
         
-        // If no type found, try looking for type in breadcrumbs or headers
+        // Method 2: Look for other issue type selectors
         if (!ticketType) {
-            const breadcrumbElements = document.querySelectorAll('[role="navigation"] span, .breadcrumbs span, nav span');
+            const typeSelectors = [
+                '[data-testid*="issue-type"]',
+                '[data-test-id*="issue-type"]',
+                '[data-testid*="issuetype"]',
+                '[aria-label*="Issue Type"]',
+                '[title*="Issue Type"]',
+                '.issue-type',
+                '[data-field-id="issuetype"]'
+            ];
+            
+            for (const selector of typeSelectors) {
+                const typeElement = document.querySelector(selector);
+                if (typeElement) {
+                    // Try different ways to get the type text
+                    ticketType = typeElement.textContent?.trim() || 
+                               typeElement.getAttribute('aria-label')?.trim() || 
+                               typeElement.getAttribute('title')?.trim() || 
+                               '';
+                    if (ticketType) break;
+                }
+            }
+        }
+        
+        // Method 3: Look for type in breadcrumbs navigation
+        if (!ticketType) {
+            const breadcrumbElements = document.querySelectorAll('[role="navigation"] [aria-label*="Change work type"], [role="navigation"] img[alt]');
             for (const element of breadcrumbElements) {
-                const text = element.textContent?.trim();
+                const ariaLabel = element.getAttribute('aria-label');
+                const altText = element.getAttribute('alt');
+                
+                if (ariaLabel) {
+                    const typeMatch = ariaLabel.match(/^([^-]+)/);
+                    if (typeMatch) {
+                        const type = typeMatch[1].trim();
+                        if (['Bug', 'Task', 'Story', 'Epic', 'Sub-task', 'Initiative', 'Deliverable'].includes(type)) {
+                            ticketType = type;
+                            break;
+                        }
+                    }
+                }
+                
+                if (!ticketType && altText) {
+                    const type = altText.trim();
+                    if (['Bug', 'Task', 'Story', 'Epic', 'Sub-task', 'Initiative', 'Deliverable'].includes(type)) {
+                        ticketType = type;
+                        break;
+                    }
+                }
+            }
+        }
+        
+        // Method 4: Fallback - look for type in any navigation elements
+        if (!ticketType) {
+            const allNavElements = document.querySelectorAll('nav span, nav button, nav img, [role="navigation"] span, [role="navigation"] button, [role="navigation"] img');
+            for (const element of allNavElements) {
+                const text = element.textContent?.trim() || element.getAttribute('alt')?.trim() || element.getAttribute('aria-label')?.trim();
                 if (text && ['Bug', 'Task', 'Story', 'Epic', 'Sub-task', 'Initiative', 'Deliverable'].includes(text)) {
                     ticketType = text;
                     break;
@@ -71,9 +124,13 @@ function extractTicketInfo() {
             }
         }
         
-        // Clean up type text (remove extra words like "Issue Type: Bug" -> "Bug")
+        // Clean up type text (remove extra words like "Issue Type: Bug" -> "Bug" or "Bug - Change work type" -> "Bug")
         if (ticketType) {
-            ticketType = ticketType.replace(/^(Issue Type:?\s*)/i, '').trim();
+            const originalType = ticketType;
+            ticketType = ticketType.replace(/^(Issue Type:?\s*)/i, '').replace(/\s*-\s*.*$/i, '').trim();
+            console.log('Jira to Notion: Found ticket type:', originalType, '-> cleaned to:', ticketType);
+        } else {
+            console.log('Jira to Notion: No ticket type found, will use default "feature" prefix');
         }
         
         // Full ticket URL

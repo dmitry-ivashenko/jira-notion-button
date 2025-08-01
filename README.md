@@ -160,6 +160,13 @@ The plugin tries to automatically find the best place to place the button. If th
 
 ## Changelog
 
+### v1.2
+- **Improved ticket type detection**: Added support for new Jira UI breadcrumbs
+- **Multiple detection methods**: Uses 4 different methods to find ticket type
+- **Better reliability**: Targets specific `data-testid` selectors from Jira breadcrumbs
+- **Debug logging**: Added console logging to help troubleshoot type detection issues
+- **Enhanced selectors**: Works with `aria-label` and `alt` attributes in breadcrumb buttons
+
 ### v1.1
 - **Smart branch naming**: Automatic detection of ticket type
 - **Bug-specific prefixes**: Bug tickets use `bugfix/` prefix instead of `feature/`

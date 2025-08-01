@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Jira to Notion Copier",
-  "version": "1.1",
+  "version": "1.2",
   "description": "Adds a button for copying meta-information from Jira tickets in Notion format",
   
   "permissions": [
