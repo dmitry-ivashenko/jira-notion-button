@@ -57,10 +57,11 @@ If your Jira is on another domain, add it to `manifest.json`:
 
 ## What Gets Copied
 
+### For Feature/Task tickets:
 ```
-- [ ]  [TICKET-123](https://company.atlassian.net/browse/TICKET-123) - **Ticket Title**
+- [ ]  [TICKET-123](https://company.atlassian.net/browse/TICKET-123) - **Add User Dashboard**
     
-    **Branch**: `feature/TICKET-123-branch-name` from `master` 
+    **Branch**: `feature/TICKET-123-add-user-dashboard` from `master` 
     
     **PR**: [paste link here]
     
@@ -72,3 +73,24 @@ If your Jira is on another domain, add it to `manifest.json`:
         - [ ]  reviewed
         - [ ]  merged
 ```
+
+### For Bug tickets:
+```
+- [ ]  [BUG-456](https://company.atlassian.net/browse/BUG-456) - **Fix Login Error**
+    
+    **Branch**: `bugfix/BUG-456-fix-login-error` from `master` 
+    
+    **PR**: [paste link here]
+    
+    - Checklist
+        - [ ]  code complete
+        - [ ]  jira fields
+        - [ ]  nice PR
+        - [ ]  code coverage
+        - [ ]  reviewed
+        - [ ]  merged
+```
+
+The plugin automatically detects the ticket type and uses the appropriate branch prefix:
+- **Bug** → `bugfix/` 
+- **All others** (Task, Story, Epic, etc.) → `feature/`

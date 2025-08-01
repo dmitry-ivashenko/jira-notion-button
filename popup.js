@@ -27,7 +27,11 @@ document.addEventListener('DOMContentLoaded', async function() {
             try {
                 const results = await chrome.tabs.sendMessage(tab.id, { action: 'getTicketInfo' });
                 if (results && results.id) {
-                    updateStatus('active', `✅ Found ticket: ${results.id}`);
+                    let statusMessage = `✅ Found ticket: ${results.id}`;
+                    if (results.type) {
+                        statusMessage += ` (${results.type})`;
+                    }
+                    updateStatus('active', statusMessage);
                 }
             } catch (error) {
                 // If we can't communicate with content script, it's normal

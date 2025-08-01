@@ -35,12 +35,54 @@ function extractTicketInfo() {
             }
         }
         
+        // Extract ticket type (Bug, Task, Story, etc.)
+        let ticketType = '';
+        const typeSelectors = [
+            '[data-testid*="issue-type"]',
+            '[data-test-id*="issue-type"]',
+            '[data-testid*="issuetype"]',
+            '[aria-label*="Issue Type"]',
+            '[title*="Issue Type"]',
+            '.issue-type',
+            '[data-field-id="issuetype"]'
+        ];
+        
+        for (const selector of typeSelectors) {
+            const typeElement = document.querySelector(selector);
+            if (typeElement) {
+                // Try different ways to get the type text
+                ticketType = typeElement.textContent?.trim() || 
+                           typeElement.getAttribute('aria-label')?.trim() || 
+                           typeElement.getAttribute('title')?.trim() || 
+                           '';
+                if (ticketType) break;
+            }
+        }
+        
+        // If no type found, try looking for type in breadcrumbs or headers
+        if (!ticketType) {
+            const breadcrumbElements = document.querySelectorAll('[role="navigation"] span, .breadcrumbs span, nav span');
+            for (const element of breadcrumbElements) {
+                const text = element.textContent?.trim();
+                if (text && ['Bug', 'Task', 'Story', 'Epic', 'Sub-task', 'Initiative', 'Deliverable'].includes(text)) {
+                    ticketType = text;
+                    break;
+                }
+            }
+        }
+        
+        // Clean up type text (remove extra words like "Issue Type: Bug" -> "Bug")
+        if (ticketType) {
+            ticketType = ticketType.replace(/^(Issue Type:?\s*)/i, '').trim();
+        }
+        
         // Full ticket URL
         const ticketUrl = window.location.href.split('?')[0]; // remove query parameters
         
         return {
             id: ticketId,
             title: title,
+            type: ticketType,
             url: ticketUrl
         };
     } catch (error) {
@@ -51,9 +93,31 @@ function extractTicketInfo() {
 
 // Function to create text in Notion format
 function formatNotionText(ticketInfo) {
+    // Determine branch prefix based on ticket type
+    let branchPrefix = 'feature';
+    if (ticketInfo.type && ticketInfo.type.toLowerCase() === 'bug') {
+        branchPrefix = 'bugfix';
+    }
+    
+    // Generate branch name from ticket title (simplified)
+    let branchSuffix = 'branch-name';
+    if (ticketInfo.title) {
+        branchSuffix = ticketInfo.title
+            .toLowerCase()
+            .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+            .replace(/\s+/g, '-') // Replace spaces with hyphens
+            .replace(/-+/g, '-') // Replace multiple hyphens with single
+            .replace(/^-|-$/g, '') // Remove leading/trailing hyphens
+            .substring(0, 50); // Limit length
+        
+        if (!branchSuffix) {
+            branchSuffix = 'branch-name';
+        }
+    }
+    
     const template = `- [ ]  [${ticketInfo.id}](${ticketInfo.url}) - **${ticketInfo.title}**
     
-    **Branch**: \`feature/${ticketInfo.id}-branch-name\` from \`master\` 
+    **Branch**: \`${branchPrefix}/${ticketInfo.id}-${branchSuffix}\` from \`master\` 
     
     **PR**: [paste link here]
     

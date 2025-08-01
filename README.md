@@ -5,16 +5,37 @@ Chrome extension for copying meta-information from Jira tickets to Notion format
 ## Features
 
 - Automatically adds "📋 Copy to Notion" button to Jira ticket pages
-- Extracts basic ticket information (ID, title, URL)
+- Extracts ticket information (ID, title, type, URL)
+- Smart branch naming based on ticket type:
+  - **Bug tickets**: `bugfix/TICKET-ID-description`
+  - **Other tickets**: `feature/TICKET-ID-description`
 - Formats text in convenient Notion format with checklist
 - Copies everything to clipboard with one click
 
 ## Copied Text Format
 
+### For Feature/Task tickets:
 ```
 - [ ]  [COLLAB-8264](https://roblox.atlassian.net/browse/COLLAB-8264) - **Select Syncing Root Action**
     
-    **Branch**: `feature/COLLAB-8264-branch-name` from `master` 
+    **Branch**: `feature/COLLAB-8264-select-syncing-root-action` from `master` 
+    
+    **PR**: [paste link here]
+    
+    - Checklist
+        - [ ]  code complete
+        - [ ]  jira fields
+        - [ ]  nice PR
+        - [ ]  code coverage
+        - [ ]  reviewed
+        - [ ]  merged
+```
+
+### For Bug tickets:
+```
+- [ ]  [COLLAB-8986](https://roblox.atlassian.net/browse/COLLAB-8986) - **Fix Symlink-Related Issues**
+    
+    **Branch**: `bugfix/COLLAB-8986-fix-symlink-related-issues` from `master` 
     
     **PR**: [paste link here]
     
@@ -138,6 +159,12 @@ The plugin tries to automatically find the best place to place the button. If th
 3. Fallback method is used for older browsers
 
 ## Changelog
+
+### v1.1
+- **Smart branch naming**: Automatic detection of ticket type
+- **Bug-specific prefixes**: Bug tickets use `bugfix/` prefix instead of `feature/`
+- **Improved branch names**: Auto-generated from ticket title (e.g., `feature/TICKET-123-add-user-dashboard`)
+- **Enhanced popup**: Shows ticket type in status display
 
 ### v1.0
 - First version of plugin
